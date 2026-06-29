@@ -1,5 +1,5 @@
 from django.shortcuts import render
-
+from .models import ContactMessage
 # Create your views here.
 def health(request):
     return render(request, "health.html")
@@ -14,7 +14,20 @@ def appointment(request):
     return render(request, "appointment.html")
 
 def contact(request):
-    return render(request, "contact.html")
+     if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject= request.POST.get('subject')
+        message = request.POST.get('message')
+
+        # save to database
+     ContactMessage.objects.create(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message
+        )
+     return render(request, "contact.html")
 
 def departmentDetails(request):
     return render(request, "department-details.html")
