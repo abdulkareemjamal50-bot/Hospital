@@ -1,5 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import ContactMessage
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib import messages
 # Create your views here.
 def health(request):
     return render(request, "health.html")
@@ -20,13 +24,28 @@ def contact(request):
         subject= request.POST.get('subject')
         message = request.POST.get('message')
 
-        # save to database
-     ContactMessage.objects.create(
-            name=name,
-            email=email,
-            subject=subject,
-            message=message
+            # save to database
+        ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message
+            )
+        # send notification to mail
+        send_mail(
+            subject=f"{name},New contact message from citycare website",
+            message=f"""
+name:{name}
+Email:{email}
+
+Message:{message}
+""",
+from_email=settings.DEFAULT_FROM_EMAIL,
+recipient_list=["abdulkareemjamal50@gmail.com"],
+fail_silently=False,
         )
+        messages.success(request,"Message sent succesfully")
+        return redirect('contact')
      return render(request, "contact.html")
 
 def departmentDetails(request):
